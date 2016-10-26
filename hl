@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+
+use strict;
+
+use Term::ANSIColor;
+
+use Getopt::GUI::Long;
+Getopt::GUI::Long::Configure(qw(display_help no_ignore_case capture_output));
+
+my %opts = (c => 'bold red');
+GetOptions(\%opts,
+
+	   ["c|color=s", "Color to use when PATTERN is seen"],
+
+	   ["GUI:otherargs", "PATTERN [Files...]"]) || exit;
+
+$| = 1;
+my $regexp = shift @ARGV;
+my $haveparens = ($regexp =~ /^\(/);
+my $fullregexp = # "(.*)" .
+  (($haveparens) ? '' : '(') .
+  $regexp . (($haveparens) ? '' : ')');
+
+#print "full: $fullregexp\n";
+while(<>) {
+#    print "starting: $_\n";
+    s/$fullregexp/color($opts{'c'}) . $1 . color('reset')/goei;
+    print;
+}
